@@ -1,1 +1,1 @@
-const db = require('./index');const log = console.log.bind(console);(async () => {  await db.set('test', [{test: 'awoo'}])  log(await db.get('test'))})()
+const db = require('./index');const log = console.log.bind(console);(async () => {  log('aw')  log(await db.get('tweest'))  await db.set('testwe', [{test: 'awoo'}])  log(await db.get('tweest'))})()
