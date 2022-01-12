@@ -1,0 +1,1 @@
+const db = require('./index');const log = console.log.bind(console);await db.set('test', [{test: 'awoo'}])log(await db.get('test'))
