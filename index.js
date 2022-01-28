@@ -12,6 +12,9 @@ client.on('error', (error) => {
   console.error(error);
 });
 
+if (!process.env.secret)
+  console.warn('No secret key for key-value storage');
+
 const get = async (key) => {
   try {
     let res = await getAsync(`keyv:${key}`);
