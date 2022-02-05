@@ -18,7 +18,13 @@ if (!process.env.secret)
 const get = async (key) => {
   try {
     let res = await getAsync(`keyv:${key}`);
-    res = JSON.parse(res);
+
+    try {
+      res = JSON.parse(res);
+    } catch (e) {
+      if (res)
+        return res
+    }
 
     res = res.value || res;
 
