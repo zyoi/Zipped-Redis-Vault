@@ -1,14 +1,4 @@
+const db = require('./index')
 
-const redis = require('redis');
-const client = redis.createClient();
-
-(async () => {
-
-  client.on('error', (err) => console.log('Redis Client Error', err));
-
-  await client.connect();
-
-  await client.set('key', 'value');
-  const value = await client.get('key');
-  console.log(value)
-})();
+db.get('csm_items').then(console.log)
+db.get('csm_items').then(console.log)
