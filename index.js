@@ -8,16 +8,24 @@ const getAsync = promisify(client.get).bind(client);
 const setAsync = promisify(client.set).bind(client);
 const {secret_keys} = CFG;
 const CryptoJS = require('crypto-js');
-client.on('error', (error) => {
-  console.error(error);
-});
+
+client.on('error',
+  (err) => console.log('Redis Client Error', err)
+);
+
+let connected = false;
 
 if (!process.env.secret)
   console.warn('No secret key for key-value storage');
 
 const get = async (key) => {
+  if (!connected)
+    await client.connect();
+
+  connected = true
+
   try {
-    let res = await getAsync(`keyv:${key}`);
+    let res = await client.get(`keyv:${key}`);
 
     try {
       res = JSON.parse(res);
@@ -66,12 +74,17 @@ const do_stuff = (key, value, do_decryption) => {
   }
 }
 
-const set = (key, value) => {
+const set = async (key, value) => {
+  if (!connected)
+    await client.connect();
+
+  connected = true
+
   if (secret_keys.hasOwnProperty(key)) do_stuff(key, value, false)
 
-  setAsync(`keyv:update_time:${key}`, Date().toString());
+  client.set(`keyv:update_time:${key}`, Date().toString());
 
-  return setAsync(`keyv:${key}`, JSON.stringify(value));
+  return client.set(`keyv:${key}`, JSON.stringify(value));
 };
 
 module.exports = {
