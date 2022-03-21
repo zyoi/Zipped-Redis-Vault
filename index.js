@@ -15,14 +15,19 @@ client.on('error',
 
 let connected = false;
 
+client.connect().then(r => connected = true);
+
+const wait_for_connection = () => new Promise(r => setInterval(() => {
+  if (connected)
+    return r();
+}, 50));
+
 if (!process.env.secret)
   console.warn('No secret key for key-value storage');
 
 const get = async (key) => {
   if (!connected)
-    await client.connect();
-
-  connected = true
+    await wait_for_connection()
 
   try {
     let res = await client.get(`keyv:${key}`);
@@ -76,9 +81,7 @@ const do_stuff = (key, value, do_decryption) => {
 
 const set = async (key, value) => {
   if (!connected)
-    await client.connect();
-
-  connected = true
+    await wait_for_connection()
 
   if (secret_keys.hasOwnProperty(key)) do_stuff(key, value, false)
 
