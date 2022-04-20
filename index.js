@@ -5,9 +5,11 @@ const redis = require('redis');
 const client = redis.createClient();
 const {promisify} = require('util');
 const getAsync = promisify(client.get).bind(client);
+const zlib = require('zlib');
 const setAsync = promisify(client.set).bind(client);
 const {secret_keys} = CFG;
 const CryptoJS = require('crypto-js');
+const Console = require("console");
 
 client.on('error',
   (err) => console.log('Redis Client Error', err)
@@ -34,9 +36,17 @@ const get = async (key) => {
 
     try {
       res = JSON.parse(res);
+      if (res._compressed) {
+        res = res._compressed
+        const buffer = Buffer.from(res);
+        res = zlib.gunzipSync(buffer)
+        res = JSON.parse(res.toString())
+      }
     } catch (e) {
-      if (res)
+      if (res || res === null)
         return res
+      else
+        console.error(e)
     }
 
     res = res.value || res;
@@ -83,7 +93,13 @@ const set = async (key, value) => {
   if (!connected)
     await wait_for_connection()
 
-  if (secret_keys.hasOwnProperty(key)) do_stuff(key, value, false)
+  if (secret_keys.hasOwnProperty(key))
+    do_stuff(key, value, false)
+
+  value = JSON.stringify(value)
+  const userBuffer = new Buffer.from(value)
+  const _compressed = zlib.gzipSync(userBuffer)
+  value = {_compressed}
 
   client.set(`keyv:update_time:${key}`, Date().toString());
 
