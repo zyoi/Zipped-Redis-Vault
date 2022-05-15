@@ -63,7 +63,6 @@ const get = async (key) => {
 };
 
 const do_stuff = (key, value, do_decryption) => {
-
   if (!process.env.secret || !Array.isArray(value)) return;
 
   for (let item of value) {
@@ -106,6 +105,21 @@ const set = async (key, value) => {
   return client.set(`keyv:${key}`, JSON.stringify(value));
 };
 
+const watcher = (key, log_time, callback, saved_update_time) => {
+  get('update_time:' + key).then(update_time => {
+    if (saved_update_time !== update_time) {
+      get(key).then(response => callback(response))
+      saved_update_time = update_time
+
+      if (log_time)
+        console.log(`${key}'s new update_time: ${update_time}`)
+    }
+
+    setTimeout(() => watcher(key, log_time, callback, saved_update_time), 1000)
+    //console.log('Updated ' + key)
+  })
+}
+
 module.exports = {
-  get, set
+  get, set, watcher
 }
