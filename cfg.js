@@ -4,10 +4,12 @@ const list = [
 ]
 
 module.exports = {
-  secret_keys: {
-    csm_accounts: list,
-    csm_accounts_no_inv: list,
-    csm_accounts_full_info: list,
-    testwe: ['test']
-  }
+  secret_keys: [
+    'csm_accounts',
+    'csm_accounts_no_inv',
+    'csm_accounts_full_info',
+    'accounts',
+    'testwe',
+    'empty_accounts',
+  ]
 }

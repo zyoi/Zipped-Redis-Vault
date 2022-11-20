@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d2926b05-3fa0-470d-8258-d7bb1ba1a684" name="Changes" comment="extra error log removed" />
+    <list default="true" id="d2926b05-3fa0-470d-8258-d7bb1ba1a684" name="Changes" comment="watcher">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,8 +28,9 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/index.js" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/dasda.js" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/index.js" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/node_modules/redis/package.json" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -38,21 +41,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="javascript.nodejs.core.library.configured.version" value="16.13.2" />
-    <property name="javascript.nodejs.core.library.typings.version" value="16.11.19" />
-    <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="web.server" />
-    <property name="vue.rearranger.settings.migration" value="true" />
-  </component>
-  <component name="RunManager" selected="Node.js.index.js">
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;16.17.1&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;16.11.62&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/shin/WebstormProjects/csgo_buyer&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="Node.js.test.js">
     <configuration name="dasda.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/dasda.js" working-dir="$PROJECT_DIR$">
       <method v="2" />
     </configuration>
     <configuration name="index.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/index.js" working-dir="$PROJECT_DIR$">
+      <method v="2" />
+    </configuration>
+    <configuration name="sadas.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/sadas.js" working-dir="$PROJECT_DIR$">
       <method v="2" />
     </configuration>
     <configuration name="sda.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/sda.js" working-dir="$PROJECT_DIR$">
@@ -65,6 +71,7 @@
       <list>
         <item itemvalue="Node.js.index.js" />
         <item itemvalue="Node.js.test.js" />
+        <item itemvalue="Node.js.sadas.js" />
         <item itemvalue="Node.js.sda.js" />
         <item itemvalue="Node.js.dasda.js" />
       </list>
@@ -84,6 +91,20 @@
       <workItem from="1642015439865" duration="13000" />
       <workItem from="1642015461381" duration="2675000" />
       <workItem from="1642021657783" duration="10777000" />
+      <workItem from="1643360625547" duration="1027000" />
+      <workItem from="1643550336133" duration="620000" />
+      <workItem from="1644076212741" duration="2421000" />
+      <workItem from="1644221806795" duration="14000" />
+      <workItem from="1647874543871" duration="4479000" />
+      <workItem from="1650412419775" duration="6585000" />
+      <workItem from="1650450243287" duration="636000" />
+      <workItem from="1651784211232" duration="598000" />
+      <workItem from="1651860793432" duration="3255000" />
+      <workItem from="1652177307485" duration="598000" />
+      <workItem from="1652633133236" duration="4383000" />
+      <workItem from="1653229603653" duration="17000" />
+      <workItem from="1664640114396" duration="47000" />
+      <workItem from="1666281488984" duration="10000" />
     </task>
     <task id="LOCAL-00001" summary="ignore">
       <created>1642019728254</created>
@@ -309,7 +330,84 @@
       <option name="project" value="LOCAL" />
       <updated>1642036137176</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="secret key">
+      <created>1643360699686</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1643360699686</updated>
+    </task>
+    <task id="LOCAL-00034" summary="allow value to be string">
+      <created>1644096263640</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1644096263640</updated>
+    </task>
+    <task id="LOCAL-00035" summary="redis version update">
+      <created>1647879605351</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1647879605351</updated>
+    </task>
+    <task id="LOCAL-00036" summary="wait_for_connection function">
+      <created>1647880035625</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1647880035625</updated>
+    </task>
+    <task id="LOCAL-00037" summary="version bump">
+      <created>1647880054637</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1647880054637</updated>
+    </task>
+    <task id="LOCAL-00038" summary="test file">
+      <created>1647880980730</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1647880980730</updated>
+    </task>
+    <task id="LOCAL-00039" summary="version bump">
+      <created>1647881141366</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1647881141366</updated>
+    </task>
+    <task id="LOCAL-00040" summary="compression">
+      <created>1650418025928</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1650418025928</updated>
+    </task>
+    <task id="LOCAL-00041" summary="added .0 to version">
+      <created>1650418113052</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1650418113052</updated>
+    </task>
+    <task id="LOCAL-00042" summary="redis upd">
+      <created>1651861041046</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1651861041046</updated>
+    </task>
+    <task id="LOCAL-00043" summary="watcher">
+      <created>1652649591868</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1652649591868</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -327,14 +425,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="ignore" />
-    <MESSAGE value="lets fucking go" />
-    <MESSAGE value="test" />
-    <MESSAGE value="redis" />
-    <MESSAGE value="str fix" />
-    <MESSAGE value="don't decrypt non-encrypted stuff" />
-    <MESSAGE value="app-root-path" />
-    <MESSAGE value="wat" />
     <MESSAGE value="do not log additional info" />
     <MESSAGE value="json wrapper" />
     <MESSAGE value="show error" />
@@ -350,7 +440,17 @@
     <MESSAGE value="removed get at last line" />
     <MESSAGE value="error log removed" />
     <MESSAGE value="extra error log removed" />
-    <option name="LAST_COMMIT_MESSAGE" value="extra error log removed" />
+    <MESSAGE value="secret key" />
+    <MESSAGE value="allow value to be string" />
+    <MESSAGE value="redis version update" />
+    <MESSAGE value="wait_for_connection function" />
+    <MESSAGE value="test file" />
+    <MESSAGE value="version bump" />
+    <MESSAGE value="compression" />
+    <MESSAGE value="added .0 to version" />
+    <MESSAGE value="redis upd" />
+    <MESSAGE value="watcher" />
+    <option name="LAST_COMMIT_MESSAGE" value="watcher" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

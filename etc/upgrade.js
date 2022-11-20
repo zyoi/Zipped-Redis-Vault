@@ -1,0 +1,1 @@
+const db = require('../index')const {old_get, set} = require("../index");const {client} = dbclient.on('connect', async () => {  let keys = await client.keys('*');  for (let key of keys) {    console.log(key)    let value = await db.get(key.replace('keyv:', ''))    await db.set(key, value)    console.log('done')  }})

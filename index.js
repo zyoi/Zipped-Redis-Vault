@@ -1,15 +1,11 @@
 const app_root = require('app-root-path');
-require('dotenv').config({path: app_root + '/dev.env'})
+require('dotenv').config({path: app_root + '/dev.env'});
 const CFG = require('./cfg');
 const redis = require('redis');
 const client = redis.createClient();
-const {promisify} = require('util');
-const getAsync = promisify(client.get).bind(client);
 const zlib = require('zlib');
-const setAsync = promisify(client.set).bind(client);
 const {secret_keys} = CFG;
-const CryptoJS = require('crypto-js');
-const Console = require("console");
+const encryption = require('./encryption');
 
 client.on('error',
   (err) => console.log('Redis Client Error', err)
@@ -51,8 +47,8 @@ const get = async (key) => {
 
     res = res.value || res;
 
-    if (secret_keys.hasOwnProperty(key)) do_stuff(key, res, true)
-
+    if (secret_keys.includes(key))
+      res = encryption(key, res, true)
 
     return res
   } catch (e) {
@@ -62,38 +58,12 @@ const get = async (key) => {
   }
 };
 
-const do_stuff = (key, value, do_decryption) => {
-  if (!process.env.secret || !Array.isArray(value)) return;
-
-  for (let item of value) {
-    for (let variable_name of secret_keys[key]) {
-
-      if (!item.hasOwnProperty(variable_name)) continue;
-
-      const www = item[variable_name];
-      //console.log(variable_name, www)
-      try {
-        let sec = process.env.secret
-        let v = do_decryption ?
-          CryptoJS.AES.decrypt(www, sec).toString(CryptoJS.enc.Utf8) :
-          CryptoJS.AES.encrypt(www, sec).toString()
-
-        if (v === '') return;
-
-        item[variable_name] = v;
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  }
-}
-
 const set = async (key, value) => {
   if (!connected)
     await wait_for_connection()
 
-  if (secret_keys.hasOwnProperty(key))
-    do_stuff(key, value, false)
+  if (secret_keys.includes(key))
+    value = encryption(key, value, false)
 
   value = JSON.stringify(value)
   const userBuffer = new Buffer.from(value)
@@ -121,5 +91,5 @@ const watcher = (key, log_time, callback, saved_update_time) => {
 }
 
 module.exports = {
-  get, set, watcher
+  get, set, watcher, client
 }
