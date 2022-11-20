@@ -34,9 +34,14 @@ const get = async (key) => {
       res = JSON.parse(res);
       if (res._compressed) {
         res = res._compressed
+
         const buffer = Buffer.from(res);
-        res = zlib.gunzipSync(buffer)
-        res = JSON.parse(res.toString())
+        res = zlib.gunzipSync(buffer).toString()
+
+        if (secret_keys.includes(key))
+          res = encryption(key, res.toString(), true)
+
+        res = JSON.parse(res)
       }
     } catch (e) {
       if (res || res === null)
@@ -47,8 +52,6 @@ const get = async (key) => {
 
     res = res.value || res;
 
-    if (secret_keys.includes(key))
-      res = encryption(key, res, true)
 
     return res
   } catch (e) {
@@ -62,10 +65,11 @@ const set = async (key, value) => {
   if (!connected)
     await wait_for_connection()
 
+  value = JSON.stringify(value)
+
   if (secret_keys.includes(key))
     value = encryption(key, value, false)
 
-  value = JSON.stringify(value)
   const userBuffer = new Buffer.from(value)
   const _compressed = zlib.gzipSync(userBuffer)
   value = {_compressed}
