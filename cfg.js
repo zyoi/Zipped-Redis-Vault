@@ -1,5 +1,5 @@
 module.exports = {
-  secret_keys: [
+  secretKeys: [
     'csm_accounts',
     'csm_accounts_no_inv',
     'csm_accounts_full_info',

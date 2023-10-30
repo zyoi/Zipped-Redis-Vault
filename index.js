@@ -1,99 +1,130 @@
-const app_root = require('app-root-path');
-require('dotenv').config({path: app_root + '/dev.env'});
-const CFG = require('./cfg');
+const path = require('path');
+const dotenv = require('dotenv');
+const appRoot = require('app-root-path');
+const cfg = require('./cfg');
 const redis = require('redis');
-const client = redis.createClient();
 const zlib = require('zlib');
-const {secret_keys} = CFG;
 const encryption = require('./encryption');
 
-client.on('error',
-  (err) => console.log('Redis Client Error', err)
-);
+dotenv.config({ path: path.join(appRoot.toString(), '/dev.env') });
 
-let connected = false;
+const { secretKeys } = cfg;
 
-client.connect().then(r => connected = true);
+/**
+ * Class representing a RedisStore.
+ */
+class RedisStore {
+  /**
+   * Create a RedisStore instance.
+   */
+  constructor() {
+    this.client = redis.createClient();
+    this.connected = false;
+    this.client.on('error', err => console.error('Redis Client Error', err));
+    this.client.connect().then(() => this.connected = true);
 
-const wait_for_connection = () => new Promise(r => setInterval(() => {
-  if (connected)
-    return r();
-}, 50));
+    if (!process.env.secret) {
+      console.warn('No secret key for key-value storage');
+    }
+  }
 
-if (!process.env.secret)
-  console.warn('No secret key for key-value storage');
+  /**
+   * Wait until Redis is connected.
+   * @returns {Promise<void>} Resolves when Redis is connected.
+   */
+  async waitForConnection() {
+    return new Promise(resolve => {
+      const intervalId = setInterval(() => {
+        if (this.connected) {
+          clearInterval(intervalId);
+          resolve();
+        }
+      }, 50);
+    });
+  }
 
-const get = async (key) => {
-  if (!connected)
-    await wait_for_connection()
-
-  try {
-    let res = await client.get(`keyv:${key}`);
+  /**
+   * Retrieve value from Redis by key.
+   * @param {string} key - The key.
+   * @returns {Promise<any>} The value associated with the key.
+   */
+  async get(key) {
+    if (!this.connected) await this.waitForConnection();
 
     try {
-      res = JSON.parse(res);
-      if (res._compressed) {
-        res = res._compressed
+      let result = await this.client.get(`keyv:${key}`);
 
-        const buffer = Buffer.from(res);
-        res = zlib.gunzipSync(buffer).toString()
+      try {
+        result = JSON.parse(result);
+        if (result._compressed) {
+          const buffer = Buffer.from(result._compressed);
+          let decompressed = zlib.gunzipSync(buffer).toString();
 
-        if (secret_keys.includes(key))
-          res = encryption(key, res.toString(), true)
+          if (secretKeys.includes(key)) {
+            decompressed = encryption.decrypt(key, decompressed);
+          }
 
-        res = JSON.parse(res)
+          result = JSON.parse(decompressed);
+        }
+      } catch (e) {
+        if (result || result === null) return result;
+        console.error(e);
       }
-    } catch (e) {
-      if (res || res === null)
-        return res
-      else
-        console.error(e)
+
+      return result.value || result;
+    } catch (error) {
+      console.error(`Couldn't get key ${key}`);
+      return null;
     }
-
-    res = res.value || res;
-
-
-    return res
-  } catch (e) {
-    //console.error(e)
-    console.error(`Couldn't get key ${key}`)
-    return null;
   }
-};
 
-const set = async (key, value) => {
-  if (!connected)
-    await wait_for_connection()
+  /**
+   * Set value in Redis by key.
+   * @param {string} key - The key.
+   * @param {any} value - The value to set.
+   * @returns {Promise<void>} Resolves when value is set.
+   */
+  async set(key, value) {
+    if (!this.connected) await this.waitForConnection();
 
-  value = JSON.stringify(value)
+    let serializedValue = JSON.stringify(value);
 
-  if (secret_keys.includes(key))
-    value = encryption(key, value, false)
-
-  const userBuffer = new Buffer.from(value)
-  const _compressed = zlib.gzipSync(userBuffer)
-  value = {_compressed}
-
-  client.set(`keyv:update_time:${key}`, Date().toString());
-
-  return client.set(`keyv:${key}`, JSON.stringify(value));
-};
-
-const watcher = (key, log_time, callback, saved_update_time) => {
-  get('update_time:' + key).then(update_time => {
-    if (saved_update_time !== update_time) {
-      get(key).then(response => callback(response))
-      saved_update_time = update_time
-
-      if (log_time)
-        console.log(`${key}'s new update_time: ${update_time}`)
+    if (secretKeys.includes(key)) {
+      serializedValue = encryption.encrypt(key, serializedValue);
     }
 
-    setTimeout(() => watcher(key, log_time, callback, saved_update_time), 1000)
-    //console.log('Updated ' + key)
-  })
+    const userBuffer = Buffer.from(serializedValue);
+    const compressedValue = { _compressed: zlib.gzipSync(userBuffer) };
+
+    this.client.set(`keyv:update_time:${key}`, new Date().toString());
+    return this.client.set(`keyv:${key}`, JSON.stringify(compressedValue));
+  }
+
+  /**
+   * Watch a key for updates.
+   * @param {string} key - The key to watch.
+   * @param {boolean} logTime - If true, logs the update time.
+   * @param {Function} callback - Function to call when the key is updated.
+   */
+  watcher(key, logTime, callback) {
+    let savedUpdateTime;
+
+    const checkForKeyUpdates = async () => {
+      const updateTime = await this.get(`update_time:${key}`);
+
+      if (savedUpdateTime !== updateTime) {
+        const response = await this.get(key);
+        callback(response);
+
+        savedUpdateTime = updateTime;
+        if (logTime) console.log(`${key}'s new update_time: ${updateTime}`);
+      }
+
+      setTimeout(checkForKeyUpdates, 1000);
+    };
+
+    checkForKeyUpdates();
+  }
 }
 
-module.exports = {
-  get, set, watcher, client
-}
+module.exports = new RedisStore();
