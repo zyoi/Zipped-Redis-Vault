@@ -106,7 +106,7 @@ console.log(data);  // Outputs: { cardNumber: '1234-5678-9012-3456' }
 2. Install directly from GitHub:
 
 ```
-npm i github:zyoi/shins_key_value
+npm i github:zyoi/Zipped-Redis-Vault
 ```
 
 ## Configuration and Encryption
