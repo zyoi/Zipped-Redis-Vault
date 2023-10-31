@@ -3,7 +3,7 @@ const assert = chai.assert;
 const RedisStore = require('../index'); // Update the path accordingly
 const {encrypt, decrypt} = require('../encryption'); // Update the path accordingly
 const crypto = require('crypto-js');
-const cfg = require('../cfg');
+const cfg = require('../config');
 const zlib = require('zlib');
 describe('RedisStore', function () {
 
@@ -39,7 +39,7 @@ describe('RedisStore', function () {
         let decompressed = zlib.gunzipSync(buffer).toString();
 
         if (cfg.secretKeys.includes(secretKey)) {
-          decompressed = decrypt(secretKey, decompressed);
+          decompressed = decrypt(decompressed);
         }
 
         processedData = JSON.parse(decompressed);
@@ -58,8 +58,8 @@ describe('Encryption', function () {
     process.env.secret = secret;
 
     const plainText = 'Hello World';
-    const encryptedText = encrypt(secret, plainText);
-    const decryptedText = decrypt(secret, encryptedText);
+    const encryptedText = encrypt(plainText);
+    const decryptedText = decrypt(encryptedText);
 
     assert.notEqual(encryptedText, plainText, 'Encrypted text should be different from plain text');
     assert.equal(decryptedText, plainText, 'Decrypted text should match the original plain text');

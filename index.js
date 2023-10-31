@@ -1,14 +1,7 @@
-const path = require('path');
-const dotenv = require('dotenv');
-const appRoot = require('app-root-path');
-const cfg = require('./cfg');
 const redis = require('redis');
 const zlib = require('zlib');
 const encryption = require('./encryption');
-
-dotenv.config({ path: path.join(appRoot.toString(), '/dev.env') });
-
-const { secretKeys } = cfg;
+const config = require('./config')
 
 /**
  * Class representing a RedisStore.
@@ -23,7 +16,7 @@ class RedisStore {
     this.client.on('error', err => console.error('Redis Client Error', err));
     this.client.connect().then(() => this.connected = true);
 
-    if (!process.env.secret) {
+    if (!config.secret) {
       console.warn('No secret key for key-value storage');
     }
   }
@@ -60,8 +53,8 @@ class RedisStore {
           const buffer = Buffer.from(result._compressed);
           let decompressed = zlib.gunzipSync(buffer).toString();
 
-          if (secretKeys.includes(key)) {
-            decompressed = encryption.decrypt(key, decompressed);
+          if (config.secretKeys.includes(key)) {
+            decompressed = encryption.decrypt(decompressed);
           }
 
           result = JSON.parse(decompressed);
@@ -89,12 +82,12 @@ class RedisStore {
 
     let serializedValue = JSON.stringify(value);
 
-    if (secretKeys.includes(key)) {
-      serializedValue = encryption.encrypt(key, serializedValue);
+    if (config.secretKeys.includes(key)) {
+      serializedValue = encryption.encrypt(serializedValue);
     }
 
     const userBuffer = Buffer.from(serializedValue);
-    const compressedValue = { _compressed: zlib.gzipSync(userBuffer) };
+    const compressedValue = {_compressed: zlib.gzipSync(userBuffer)};
 
     this.client.set(`keyv:update_time:${key}`, new Date().toString());
     return this.client.set(`keyv:${key}`, JSON.stringify(compressedValue));
