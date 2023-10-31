@@ -1,143 +1,131 @@
 # Zipped Redis Vault
 
-Zipped Redis Vault is a versatile key-value storage solution backed by Redis. With built-in compression for every stored value, it offers an efficient approach to storing data. Optional encryption ensures sensitive data remains confidential.
+Zipped Redis Vault is a high-performance key-value storage solution that leverages the speed of Redis. It comes with built-in compression using Zlib and optional encryption to keep your data secure and storage-efficient.
 
 ## Features
 
-- **Redis Backed**: Harnesses the power of Redis for fast and reliable storage.
-- **Always-On Compression**: Every stored value is automatically compressed using Zlib, ensuring efficient use of storage.
-- **Optional Encryption**: Secure specific data by encrypting it before storage.
+- **Redis-Backed**: Utilizes Redis for fast, in-memory data storage and retrieval.
+- **Automatic Compression**: Values are automatically compressed with Zlib, optimizing storage space.
+- **Optional Encryption**: Offers the option to encrypt data before storage for enhanced security.
 
 ## Dependencies
 
-- **Redis**: An in-memory data structure store used for fast data storage and retrieval.
-- **Dotenv**: Loads environment variables from a `dev.env` file.
-- **Zlib**: A software library for data compression.
+- **Redis**: A high-performance in-memory key-value data store.
+- **Dotenv**: A zero-dependency module to load environment variables.
+- **Zlib**: A compression library providing data compression functionality.
+- **Crypto-JS**: A library of cryptography standards for encryption.
 
 ## API
 
 ### `get(key: string): Promise<any>`
 
-- Fetches the value for the specified key from the store.
-- Returns a promise that resolves with the value.
-- If the key is absent, the promise resolves with `null`.
+Retrieves the value associated with the given key.
+
+- **Parameters**: `key` - The key to fetch the value for.
+- **Returns**: A promise that resolves to the value, or `null` if the key doesn't exist.
 
 ### `set(key: string, value: any): Promise<void>`
 
-- Saves the specified value under the given key.
-- Returns a promise that resolves once the value is stored.
+Stores a value under the specified key.
+
+- **Parameters**:
+   - `key` - The key under which to store the value.
+   - `value` - The value to store.
+- **Returns**: A promise that resolves once the operation is complete.
 
 ### `watcher(key: string, logTime: boolean, callback: (value: any) => void, savedUpdateTime?: string): void`
 
-- Observes a key for updates.
-- Executes the callback function if the key gets updated.
-- If `logTime` is `true`, the key's update time is logged to the console.
-- The `savedUpdateTime` parameter is optional, used to set an initial last known update time.
+Watches a specific key for any updates and executes a callback when the key is updated.
+
+- **Parameters**:
+   - `key` - The key to watch.
+   - `logTime` - If `true`, logs the update time to the console.
+   - `callback` - A function to execute when the key is updated.
+   - `savedUpdateTime` - (Optional) The initial last known update time.
 
 ## Usage Example
 
-To fully utilize Zipped Redis Vault, follow this simple usage guide:
+Here's a quick guide to getting started with Zipped Redis Vault:
 
-1. **Initialization**:
-- First, make sure you have installed and set up the module correctly.
-- Ensure you have a running Redis instance.
-- For encryption, create a `dev.env` file in the root of the module with the following content:
+1. **Setup**:
+   Ensure Redis is running and accessible. Place your configuration in a `dev.env` file at the root of your project, like so:
 
-```plaintext
-secret=password
-```
+   ```plaintext
+   SECRET=your_encryption_key
+   SECRET_KEYS=comma_separated_keys_to_encrypt
+   REDIS_URL=redis://your_redis_url:6379
+   ```
 
-This password will be used as the encryption key. Adjust the password to your desired value.
+2. **Storing and Retrieving Data**:
 
-- Set up the `cfg.js` file for any keys you wish to encrypt.
+   ```javascript
+   const { set, get } = require('zipped-redis-vault');
 
-2. **Basic Set & Get**:
+   (async () => {
+   await set('myKey', { name: 'John', age: 30 });
+   const value = await get('myKey');
+   console.log(value);  // Outputs: { name: 'John', age: 30 }
+   })();
+   ```
 
-```javascript
-const { set, get } = require('zipped-redis-vault');
+3. **Using the Watcher**:
 
-(async () => {
-// Store a value
-await set('myKey', { name: 'John', age: 30 });
+   ```javascript
+   const { set, watcher } = require('zipped-redis-vault');
 
-// Retrieve the stored value
-const value = await get('myKey');
-console.log(value);  // Outputs: { name: 'John', age: 30 }
-})();
-```
+   watcher('myKey', true, (value) => {
+   console.log('Updated value:', value);
+   });
 
-3. **Using Watcher**:
-
-```javascript
-const { set, watcher } = require('zipped-redis-vault');
-
-watcher('myKey', true, (value) => {
-console.log('Updated value:', value);
-});
-
-setTimeout(async () => {
-await set('myKey', { name: 'Doe', age: 35 });
-// The watcher will log: Updated value: { name: 'Doe', age: 35 }
-}, 2000);
-```
-
-Note: The watcher will detect any changes made to the key and execute the callback.
+   setTimeout(async () => {
+   await set('myKey', { name: 'Doe', age: 35 });
+   // The watcher will log: Updated value: { name: 'Doe', age: 35 }
+   }, 2000);
+   ```
 
 4. **Encryption**:
-- Ensure you've listed keys you want encrypted in the `cfg.js`.
-- Values saved with the encrypted keys will be encrypted before storage and decrypted upon retrieval.
+   Any keys specified in the `SECRET_KEYS` of your `dev.env` will be encrypted automatically.
 
-```javascript
-// Assuming 'secureData' is listed in cfg.js as a secretKey
-await set('secureData', { cardNumber: '1234-5678-9012-3456' });
-
-// When you retrieve it, it will be decrypted automatically
-const data = await get('secureData');
-console.log(data);  // Outputs: { cardNumber: '1234-5678-9012-3456' }
-```
+   ```javascript
+   await set('secureData', { cardNumber: '1234-5678-9012-3456' });
+   const data = await get('secureData');
+   console.log(data);  // Outputs: { cardNumber: '1234-5678-9012-3456' }
+   ```
 
 ## Exported Objects
 
-- **client: RedisClient** - The Redis client instance the key-value store relies on.
+- **client: RedisClient** - The instance of the Redis client used by the module.
 
 ## Installation
 
-1. Ensure all dependencies are met, especially a running Redis instance.
-2. Install directly from GitHub:
+To install the package, you need to have Redis running and a `dev.env` file with the necessary configurations.
 
-```
-npm i github:zyoi/Zipped-Redis-Vault
-```
+1. Install the package using npm:
 
-## Configuration and Encryption
+   ```plaintext
+   npm i github:zyoi/Zipped-Redis-Vault
+   ```
 
-To specify keys that should be encrypted before storage, edit the `cfg.js` file. Here's a template:
+## Configuration
 
-```
-module.exports = {
-secretKeys: [
-// Add the keys you wish to encrypt here:
-'key1',
-'key2',
-// ... and so on
-]
-}
-```
+All configuration is handled through the `dev.env` file. This should include:
 
-For encryption to work, ensure that an environment variable named `secret` is set as your encryption key.
+- `SECRET`: Your encryption key.
+- `SECRET_KEYS`: A comma-separated list of keys to encrypt.
+- `REDIS_URL`: The URL to your Redis server.
 
 ## Testing
 
-Ensure you have a running Redis instance:
+To run tests, ensure your Redis instance is accessible as configured in `dev.env`:
 
-```
+```plaintext
 npm test
 ```
 
 ## Contributions
 
-We welcome feedback, bug reports, and pull requests. Let's improve and expand together!
+Contributions are welcome! Feel free to submit issues, pull requests, or suggestions to help improve the project.
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+Licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
