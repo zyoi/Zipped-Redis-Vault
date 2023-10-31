@@ -11,7 +11,7 @@ class RedisStore {
    * Create a RedisStore instance.
    */
   constructor() {
-    this.client = redis.createClient();
+    this.client = redis.createClient(config.redisUrl);
     this.connected = false;
     this.client.on('error', err => console.error('Redis Client Error', err));
     this.client.connect().then(() => this.connected = true);
