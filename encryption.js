@@ -1,12 +1,11 @@
-const { AES, enc } = require("crypto-js");
+const {AES, enc} = require("crypto-js");
 
 /**
- * Encrypt a value using the provided key and the application secret.
- * @param {string} key - The key to use for encryption.
+ * Encrypt a value using the secret key and the application secret.
  * @param {string} value - The value to be encrypted.
  * @returns {string} Encrypted value or original value in case of an error.
  */
-const encrypt = (key, value) => {
+const encrypt = (value) => {
   try {
     if (!process.env.secret) {
       console.warn("Encryption secret is not set.");
@@ -21,12 +20,11 @@ const encrypt = (key, value) => {
 };
 
 /**
- * Decrypt a value using the provided key and the application secret.
- * @param {string} key - The key to use for decryption.
+ * Decrypt a value using the secret key and the application secret.
  * @param {string} value - The value to be decrypted.
  * @returns {string} Decrypted value or original value in case of an error.
  */
-const decrypt = (key, value) => {
+const decrypt = (value) => {
   try {
     if (!process.env.secret) {
       console.warn("Decryption secret is not set.");
