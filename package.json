@@ -1,6 +1,6 @@
 {
   "name": "zipped-redis-vault",
-  "version": "1.3",
+  "version": "2.0.0",
   "description": "A secure and efficient key-value store interface for Redis, with built-in AES encryption and connection handling.",
   "main": "index.js",
   "scripts": {
