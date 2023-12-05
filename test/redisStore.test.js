@@ -11,6 +11,7 @@ describe('RedisStore', function () {
     // Code to setup a test Redis instance or mock the Redis client.
     // Wait for Redis connection if you are using a real Redis instance.
     await RedisStore.waitForConnection();
+    await RedisStore.set('testKey', null)
   });
 
   describe('#set() and #get()', function () {
