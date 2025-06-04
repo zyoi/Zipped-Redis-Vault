@@ -1,10 +1,13 @@
+process.env.SECRET = 'testSecret';
+process.env.SECRET_KEYS = 'secretKey';
+
 const chai = require('chai');
 const assert = chai.assert;
-const RedisStore = require('../index'); // Update the path accordingly
-const {encrypt, decrypt} = require('../encryption'); // Update the path accordingly
-const crypto = require('crypto-js');
+const RedisStore = require('../index');
+const { encrypt, decrypt } = require('../encryption');
 const cfg = require('../config');
 const zlib = require('zlib');
+const v8 = require('v8');
 describe('RedisStore', function () {
 
   before(async function () {
@@ -26,27 +29,33 @@ describe('RedisStore', function () {
     });
 
     it('should store encrypted data if key is in secretKeys', async function () {
-      const secretKey = cfg.secretKeys[0]; // Assuming the cfg has at least one secretKey
+      const secretKey = cfg.secretKeys[0];
       const value = 'testValue';
 
       await RedisStore.set(secretKey, value);
-      const rawRetrievedData = await RedisStore.client.get(`keyv:${secretKey}`);
+      const rawRetrievedData = await RedisStore.client.getBuffer(`keyv:${secretKey}`);
 
-      // Now, we'll simulate the processing done by the 'get' method in the RedisStore
-      let processedData = JSON.parse(rawRetrievedData);
-
-      if (processedData._compressed) {
-        const buffer = Buffer.from(processedData._compressed);
-        let decompressed = zlib.gunzipSync(buffer).toString();
-
-        if (cfg.secretKeys.includes(secretKey)) {
-          decompressed = decrypt(decompressed);
-        }
-
-        processedData = JSON.parse(decompressed);
+      let decompressed = zlib.gunzipSync(rawRetrievedData).toString();
+      if (cfg.secretKeys.includes(secretKey)) {
+        decompressed = decrypt(decompressed);
       }
+      const processedData = v8.deserialize(Buffer.from(decompressed, 'base64'));
 
       assert.equal(processedData, value);
+    });
+
+    it('should read legacy formatted values', async function () {
+      const key = 'legacyKey';
+      const value = { foo: 'bar' };
+
+      // Manually store value using legacy format
+      const serialized = JSON.stringify(value);
+      const userBuffer = Buffer.from(serialized);
+      const compressed = { _compressed: zlib.gzipSync(userBuffer) };
+      await RedisStore.client.set(`keyv:${key}`, JSON.stringify(compressed));
+
+      const result = await RedisStore.get(key);
+      assert.deepEqual(result, value);
     });
   });
 

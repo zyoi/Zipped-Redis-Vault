@@ -1,5 +1,6 @@
 const redis = require('redis');
 const zlib = require('zlib');
+const v8 = require('v8');
 const encryption = require('./encryption');
 const config = require('./config')
 
@@ -45,26 +46,38 @@ class RedisStore {
     if (!this.connected) await this.waitForConnection();
 
     try {
-      let result = await this.client.get(`keyv:${key}`);
+      const raw = await this.client.getBuffer(`keyv:${key}`);
+      if (raw === null) return null;
 
+      // Attempt to parse legacy JSON format
       try {
-        result = JSON.parse(result);
-        if (result._compressed) {
-          const buffer = Buffer.from(result._compressed);
-          let decompressed = zlib.gunzipSync(buffer).toString();
+        const legacy = JSON.parse(raw.toString());
+        if (legacy._compressed) {
+          const buf = Buffer.from(legacy._compressed.data || legacy._compressed);
+          let decompressed = zlib.gunzipSync(buf).toString();
 
           if (config.secretKeys.includes(key)) {
             decompressed = encryption.decrypt(decompressed);
           }
 
-          result = JSON.parse(decompressed);
+          return JSON.parse(decompressed);
         }
       } catch (e) {
-        if (result || result === null) return result;
-        console.error(e);
+        // not legacy JSON format, proceed
       }
 
-      return result.value || result;
+      // New binary format
+      let decompressed = zlib.gunzipSync(raw).toString();
+
+      if (config.secretKeys.includes(key)) {
+        decompressed = encryption.decrypt(decompressed);
+      }
+
+      try {
+        return JSON.parse(decompressed);
+      } catch (err) {
+        return v8.deserialize(Buffer.from(decompressed, 'base64'));
+      }
     } catch (error) {
       console.error(`Couldn't get key ${key}`);
       return null;
@@ -80,17 +93,17 @@ class RedisStore {
   async set(key, value) {
     if (!this.connected) await this.waitForConnection();
 
-    let serializedValue = JSON.stringify(value);
+    let serialized = v8.serialize(value);
+    let dataString = serialized.toString('base64');
 
     if (config.secretKeys.includes(key)) {
-      serializedValue = encryption.encrypt(serializedValue);
+      dataString = encryption.encrypt(dataString);
     }
 
-    const userBuffer = Buffer.from(serializedValue);
-    const compressedValue = {_compressed: zlib.gzipSync(userBuffer)};
+    const compressed = zlib.gzipSync(Buffer.from(dataString));
 
     this.client.set(`keyv:update_time:${key}`, new Date().toString());
-    return this.client.set(`keyv:${key}`, JSON.stringify(compressedValue));
+    return this.client.set(`keyv:${key}`, compressed);
   }
 
   /**
