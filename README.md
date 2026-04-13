@@ -7,6 +7,7 @@ Zipped Redis Vault is a high-performance key-value storage solution that leverag
 - **Redis-Backed**: Utilizes Redis for fast, in-memory data storage and retrieval.
 - **Automatic Compression**: Values are automatically compressed with Zlib, optimizing storage space.
 - **Optional Encryption**: Offers the option to encrypt data before storage for enhanced security.
+- **Binary Serialization**: Large objects are serialized using the Node.js `v8` module to avoid JSON size limits. Older JSON formatted values remain readable.
 
 ## Dependencies
 
